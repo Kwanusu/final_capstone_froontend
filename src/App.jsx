@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Search from './Search';
 import { Logout } from './Signout';
 import Footer from './Footer';
+import Product_Detail from './Products/Product_Detail';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,7 +53,7 @@ function App() {
       <Routes>
         
         <Route path="/" element={<Home/>} />
-        <Route path="/Search" element={<Search />} />
+        {/* <Route path="/Search" element={<Search />} /> */}
       {/* {isAuthenticated ? <Login /> : <Register />} */}
       
       {/* {isAuthenticated ? ( */}
@@ -68,6 +69,7 @@ function App() {
           {/* <Login /> */}
           <Route path='/Register' element={<Register/>}/>
           <Route path='/Login' element={<Login/>}/>
+          <Route path='/product_detail' element={<Product_Detail/>}/>
           
           
         </>

@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+import 'bootstrap/dist/js/bootstrap.bundle.min'; 
 
 const Navbar = ({ isAuthenticated, totalitem, wishitem }) => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get(`/search?search=${query}`);
+      setResults(response.data.products);
+    } catch (error) {
+      console.error('Error searching products', error);
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-success fixed-top mb-4">
       <div className="container-fluid">
@@ -41,9 +56,17 @@ const Navbar = ({ isAuthenticated, totalitem, wishitem }) => {
             </li>
           </ul>
 
-          <form className="d-flex ms-auto" role="search" action="/search">
-            <input className="form-control me-2" type="search" aria-label="Search" name="search" placeholder="Search" />
-            <button className="btn btn-outline-light"  type="submit">Search</button>
+          <form className="d-flex ms-auto" role="search" onSubmit={handleSearch}>
+            <input
+              className="form-control me-2"
+              type="search"
+              aria-label="Search"
+              name="search"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <button onClick={handleSearch} className="btn btn-outline-light" type="button">Search</button>
           </form>
 
           <ul className="navbar-nav mb-2 mb-lg-0 ms-2">

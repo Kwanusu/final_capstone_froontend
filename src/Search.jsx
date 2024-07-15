@@ -39,7 +39,7 @@ const Search = () => {
               <p className="card-text">{product.description}</p>
               <p className="card-text">Price: ${product.price}</p>
               <a href={`/product/${product.id}`} className="btn btn-primary">
-                View Product
+                Add to Cart
               </a>
             </div>
           </div>
