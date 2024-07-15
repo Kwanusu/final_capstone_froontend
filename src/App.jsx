@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -8,8 +9,7 @@ import CartList from './CartList';
 import Home from './Home';
 import Register from './Register';
 import Products from './Products/Products';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Search from './Search';
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import { Logout } from './Signout';
 import Footer from './Footer';
 import Product_Detail from './Products/Product_Detail';
