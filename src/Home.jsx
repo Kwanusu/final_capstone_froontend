@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useCart } from './CartContext';
+import { useWishlist } from './WishlistContext';
 
 const Home = () => {
   const [carouselImages, setCarouselImages] = useState([]);
   const [products, setProducts] = useState([]);
+  const { addOneToCart } = useCart();
+  const { wishlistProducts, addOneToWishlist, removeOneFromWishlist, deleteFromWishlist } = useWishlist();
+ 
 
   useEffect(() => {
     const fetchCarouselImages = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/carousel_images/');
-        console.log('Carousel images response:', response.data);
         const imagesWithFullPaths = response.data.map(image => ({
           ...image,
           src: `http://localhost:8000${image.src}`
@@ -24,7 +28,6 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/products/');
-        console.log('Products response:', response.data);
         if (response.data.status === 'success') {
           const productsWithFullImagePaths = response.data.data.map(product => ({
             ...product,
@@ -39,7 +42,24 @@ const Home = () => {
 
     fetchCarouselImages();
     fetchProducts();
+    
   }, []);
+  console.log(products)
+  const handleCheckout = async () => {
+    try {
+      const cartItems = Object.entries(cart).map(([id, quantity]) => ({ id, quantity }));
+      const response = await axios.post('http://localhost:8000/api/checkout/', { items: cartItems });
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
+
+  const calculateDiscountPercentage = (sellingPrice, discountedPrice) => {
+    return Math.round(((sellingPrice - discountedPrice) / sellingPrice) * 100);
+  };
 
   return (
     <div className="container mt-5">
@@ -67,12 +87,25 @@ const Home = () => {
         {Array.isArray(products) && products.map((product, index) => (
           <div key={index} className="col-md-4">
             <div className="card mb-4">
-              <a href='/product_detail'><img src={product.product_image} className="image img-responsive col-xs-6 sm-12 col-lg-12 mt-3 text-sm-center w-100 h-50" alt={product.title} /></a>
-              <h5 className="card-title">{product.title}</h5>
-              <div className="d-flex justify-content-between">
-                <Link to='/product_detail' className="btn btn-primary">Add to Cart</Link>
-                <button className="btn btn-warning mx-1">Buy Now</button>
-                <button className="btn btn-success mx-1">Add to Wishlist</button>
+              <div className="position-absolute top-0 end-0 p-2">
+                <span className="badge bg-danger">
+                  {calculateDiscountPercentage(product.selling_price, product.discounted_price)}% Off
+                </span>
+              </div>
+              <Link to={`/product_detail/${product.title}`}>
+                <img src={product.product_image} className="image img-responsive col-xs-6 sm-12 col-lg-12 mt-3 text-sm-center w-100 h-50" alt={product.title} />
+              </Link>
+              <div className="card-body">
+                <h5 className="card-title">{product.title}</h5>
+                <h5 className="card-title">{product.id}</h5>
+                <p className="card-text">Description: {product.description}</p>
+                <p className="card-text text-decoration-line-through text-muted text-danger">Was Kshs: {product.selling_price}</p>
+                <h5 className="card-text">Now Kshs: {product.discounted_price}</h5>
+                <div className="d-flex justify-content-between">
+                  <button className="btn btn-primary" onClick={() => addOneToCart(product.title)}>Add to Cart</button> {/* Updated here */}
+                  <button className="btn btn-warning mx-1" onClick={handleCheckout}>Buy Now</button>
+                  <button className="btn btn-success" onClick={() => addOneToWishlist(product.title)}>Add to Wishlist</button>
+                </div>
               </div>
             </div>
           </div>

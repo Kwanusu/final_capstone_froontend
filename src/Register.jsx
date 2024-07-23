@@ -1,6 +1,6 @@
-import axios from "axios";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link} from "react-router-dom";
+import { useAuth } from './AuthContext'; // Adjust the import path as needed
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -9,35 +9,29 @@ function Register() {
   const [password2, setPassword2] = useState('');
   const [error, setError] = useState('');
 
+  const { register } = useAuth();
+  const history = useHistory();
+
   const submit = async (e) => {
     e.preventDefault();
-    const user = {
-      username: username,
-      email: email,
-      password1: password1,
-      password2: password2
-    };
+    if (password1 !== password2) {
+      setError({ password2: "Passwords do not match" });
+      return;
+    }
+
+    const user = { username, email, password1, password2 };
 
     try {
-      const { data } = await axios.post(
-        'http://localhost:8000/api/register/',
-        user,
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        }
-      );
-
-      // Redirect or handle success
-      localStorage.clear();
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
-      window.location.href = '/login';
+      await register(user);
+      history.push('/'); // Redirect to home page or wherever you want
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data);
+      } else if (error.request) {
+        console.error('Request Error:', error.request);
+        setError('Failed to send request. Please try again.');
       } else {
+        console.error('Error:', error.message);
         setError('Something went wrong.');
       }
     }
@@ -96,13 +90,13 @@ function Register() {
               onChange={e => setPassword2(e.target.value)}
             />
           </div>
-          {/* {error && (
+          {error && (
             <div className="alert alert-danger mt-3">
               {Object.keys(error).map((key) => (
-                <p key={key}>{key}: {error[key].join(', ')}</p>
+                <p key={key}>{key}: {error[key]}</p>
               ))}
             </div>
-          )} */}
+          )}
           <div className="d-grid gap-2 mt-3">
             <button type="submit" className="btn btn-primary">
               Register
@@ -116,4 +110,3 @@ function Register() {
 }
 
 export default Register;
-

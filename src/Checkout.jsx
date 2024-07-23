@@ -13,7 +13,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/checkout_data/');
+        const response = await axios.get('http://localhost:8000/api/checkout/');
         setAdd(response.data.add);
         setCart(response.data.cart);
         setTotalAmount(response.data.totalAmount);
@@ -28,6 +28,18 @@ const Checkout = () => {
     fetchData();
   }, []);
 
+  const handleCheckout = async () => {
+    try {
+      const cartItems = cart.map(item => ({ id: item.id, quantity: item.quantity }));
+      const response = await axios.post('http://localhost:8000/api/checkout/', { items: cartItems });
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
+
   return (
     <div>
       <h1>Checkout Page</h1>
@@ -39,7 +51,7 @@ const Checkout = () => {
       <p>Total Amount: {totalAmount}</p>
       <p>Total Items in Cart: {totalItem}</p>
       <p>Total Items in Wishlist: {wishItem}</p>
-      <button id="checkout-button">Pay Now</button>
+      <button id="checkout-button" onClick={handleCheckout}>Pay Now</button>
     </div>
   );
 };
