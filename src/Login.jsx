@@ -1,21 +1,21 @@
-import axios from "axios";
-import { useState } from "react";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from "react-router-dom"; 
 
-// Define the Login function.
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  // Create the submit method.
   const submit = async (e) => {
     e.preventDefault();
     const user = {
-      username: username,
-      password: password
+      username,
+      password
     };
 
     try {
-      // Create the POST request
       const { data } = await axios.post(
         'http://localhost:8000/token/',
         user,
@@ -25,14 +25,34 @@ function Login() {
         }
       );
 
+      // Clear any previous error messages
+      setError('');
+      
       // Initialize the access & refresh token in local storage.
       localStorage.clear();
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
-      window.location.href = '/';
+      
+      // Set success message and redirect
+      setSuccess('Login successful! Redirecting...');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000); // Adjust delay as needed
     } catch (error) {
       console.error('Error logging in', error);
+      
+      // Set error message based on response
+      if (error.response && error.response.status === 401) {
+        setError('Invalid username or password. Please try again.');
+      } else if (error.response && error.response.status === 400) {
+        setError('Incorrect username or password. Please check your details.');
+      } else {
+        setError('An error occurred. Please try again later.');
+      }
+      
+      // Clear success message
+      setSuccess('');
     }
   };
 
@@ -65,11 +85,22 @@ function Login() {
               onChange={e => setPassword(e.target.value)}
             />
           </div>
+          {error && (
+            <div className="alert alert-danger mt-3">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="alert alert-success mt-3">
+              {success}
+            </div>
+          )}
           <div className="d-grid gap-2 mt-3">
             <button type="submit" className="btn btn-primary">
               Submit
             </button>
           </div>
+          <span className="mt-3 d-block text-center">Forgot Password? <Link to="/reset">Reset</Link></span>
         </form>
       </div>
     </div>

@@ -1,56 +1,40 @@
-// import {useContext} from 'react';
-// import { CartContext } from './CartContext';
+import React, { useContext } from 'react';
+import { CartContext } from './CartContext';
 
-// import { Button } from 'react-bootstrap';
+function CardProduct({ product }) {
+  const cart = useContext(CartContext);
 
-// function CardProduct (props) {
+  // Debugging logs
+  console.log('Received product:', product);
 
-//     const cart = useContext(CartContext);
-//     const id = props.id;
-//     const quantity = props.quantity;
-//     const productData = getProductData(id)
-//   return (
-//     <div>
-//         <h3>{productData.title}</h3>
-//         <p>{quantity} total</p>
-//         <p>${ (quantity * productData.price).toFixed(2) }</p>
-//         <Button size="sm" onClick={() => cart.deleteFromCart(id)}>Remove</Button>
-//         <hr></hr>
-//     </div>
-//   )
-// }
-
-// export default CardProduct
-import React from 'react';
-import { getProductData } from './Products/ProductDetail'; 
-import { useCart } from './CartContext';
-
-const CardProduct = ({ title, quantity }) => {
-  const { removeFromCart } = useCart();
-  const product = getProductData(title);// Use the getProductData function to fetch product details
- 
-
-  if (!product) {
-    return null;
+  if (!product || !product.title) {
+    console.error('Product or title is undefined', product);
+    return <div>Loading product details...</div>;
   }
 
   return (
-    <div className="card mb-3">
-      <div className="row g-0">
-        <div className="col-md-4">
-          <img src={product.product_image} className="img-fluid rounded-start" alt={product.title} />
-        </div>
-        <div className="col-md-8">
-          <div className="card-body">
-            <h5 className="card-title">{product.title}</h5>
-            <p className="card-text">Quantity: {quantity}</p>
-            <p className="card-text">Price: Kshs {product.price * quantity}</p>
-            <button className="btn btn-danger" onClick={() => removeFromCart(title)}>Remove</button>
-          </div>
-        </div>
+    <div className="card">
+      <img src={product.image} className="card-img-top" alt={product.title} />
+      <div className="card-body">
+        <h5 className="card-title">{product.title}</h5>
+        <p className="card-text">{product.description}</p>
+        <p className="card-text">${product.price}</p>
+        <a href="#" className="btn btn-primary">Buy Now</a>
       </div>
     </div>
   );
-};
+}
 
 export default CardProduct;
+
+
+// CardProduct.propTypes = {
+//   product: PropTypes.shape({
+//     title: PropTypes.string.isRequired,
+//     description: PropTypes.string,
+//     price: PropTypes.number,
+//     image: PropTypes.string,
+//   })
+// };
+
+// export default CardProduct;

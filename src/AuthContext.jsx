@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data } = await axios.get('/api/check-auth'); 
         setIsAuthenticated(true);
-        setUser(data);
+        setUser(data.user);
       } catch (error) {
         console.error('Error fetching user', error);
         setIsAuthenticated(false);

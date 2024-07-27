@@ -1,59 +1,47 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getProductData } from './Products/Product_Detail';
 
-const Checkout = () => {
-  const [add, setAdd] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [clientSecret, setClientSecret] = useState('');
-  const [stripePublishableKey, setStripePublishableKey] = useState('');
-  const [totalItem, setTotalItem] = useState(0);
-  const [wishItem, setWishItem] = useState(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/checkout/');
-        setAdd(response.data.add);
-        setCart(response.data.cart);
-        setTotalAmount(response.data.totalAmount);
-        setClientSecret(response.data.clientSecret);
-        setStripePublishableKey(response.data.stripePublishableKey);
-        setTotalItem(response.data.totalItem);
-        setWishItem(response.data.wishItem);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+const createCheckoutSession = async (items, products) => {
+  try {
+    const lineItems = items.map(item => {
+      const product = getProductData(item.title, products);
+      if (!product) {
+        throw new Error(`Product data not found for title: ${item.title}`);
       }
-    };
-    fetchData();
-  }, []);
 
-  const handleCheckout = async () => {
-    try {
-      const cartItems = cart.map(item => ({ id: item.id, quantity: item.quantity }));
-      const response = await axios.post('http://localhost:8000/api/checkout/', { items: cartItems });
-      if (response.data.url) {
-        window.location.href = response.data.url;
+      if (typeof product.discounted_price !== 'number' || product.discounted_price <= 0) {
+        throw new Error(`Invalid price for product: ${item.title}`);
       }
-    } catch (error) {
-      console.error('Error during checkout:', error);
+
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: product.title,
+            description: product.description,
+          },
+          unit_amount: Math.round(product.discounted_price * 100), // Amount in cents, rounded to avoid potential floating-point issues
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    const response = await axios.post('http://localhost:8000/api/checkout/create-session/', {
+      items: lineItems,
+    });
+
+    if (response.data && response.data.url) {
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.url;
+      console.log(data.url)
+    } else {
+      throw new Error('Invalid response from server: Missing URL');
     }
-  };
-
-  return (
-    <div>
-      <h1>Checkout Page</h1>
-      <ul>
-        {cart.map(item => (
-          <li key={item.id}>{item.product.title} - {item.quantity}</li>
-        ))}
-      </ul>
-      <p>Total Amount: {totalAmount}</p>
-      <p>Total Items in Cart: {totalItem}</p>
-      <p>Total Items in Wishlist: {wishItem}</p>
-      <button id="checkout-button" onClick={handleCheckout}>Pay Now</button>
-    </div>
-  );
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    // Optionally, you can show an alert to the user
+    alert('There was an error creating the checkout session. Please try again.');
+  }
 };
 
-export default Checkout;
+export default createCheckoutSession;

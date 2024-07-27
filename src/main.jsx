@@ -6,7 +6,6 @@ import './interceptors/axios';
 import '@popperjs/core';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import { AuthProvider } from './AuthContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

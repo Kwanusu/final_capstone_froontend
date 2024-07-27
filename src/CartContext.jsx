@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { getProductData } from './Products/ProductDetail';
+import { getProductData } from './Products/Product_Detail';
 
 export const CartContext = createContext({
     items: [],
@@ -8,7 +8,8 @@ export const CartContext = createContext({
     addOneToCart: () => {},
     removeOneFromCart: () => {},
     deleteFromCart: () => {},
-    getTotalCost: () => {}
+    getTotalCost: () => {},
+    prepareCheckoutData: () => {}
 });
 
 export const useCart = () => {
@@ -27,10 +28,11 @@ export function CartProvider({ children }) {
             try {
                 const response = await axios.get('http://localhost:8000/api/products/');
                 if (response.data.status === 'success') {
-                    setProducts(response.data.data.map(product => ({
+                    const productsWithFullImagePaths = response.data.data.map(product => ({
                         ...product,
                         product_image: `http://localhost:8000${product.product_image}`
-                    })));
+                    }));
+                    setProducts(productsWithFullImagePaths);
                 }
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -97,6 +99,25 @@ export function CartProvider({ children }) {
         }, 0);
     }
 
+    function prepareCheckoutData() {
+        return cartProducts.map(cartItem => {
+            const productData = getProductData(cartItem.title, products);
+            if (productData) {
+                return {
+                    title: cartItem.title,
+                    price: productData.discounted_price || productData.selling_price,
+                    quantity: cartItem.quantity
+                };
+            } else {
+                return {
+                    title: cartItem.title,
+                    price: 0,
+                    quantity: cartItem.quantity
+                };
+            }
+        });
+    }
+
     const contextValue = {
         items: cartProducts,
         getProductQuantity,
@@ -104,7 +125,7 @@ export function CartProvider({ children }) {
         removeOneFromCart,
         deleteFromCart,
         getTotalCost,
-        products, 
+        prepareCheckoutData,
         setCartProducts,
     };
 

@@ -15,12 +15,12 @@ import ContactUs from './Contact Us';
 import Cart from './Cart/Cart';
 import AddToCart from './Cart/AddToCart';
 import Product_Detail from './Products/Product_Detail';
-import ProductDetail from './Products/ProductDetail';
 import Checkout from './Checkout';
 import { AuthProvider } from './AuthContext';
 import { CartProvider } from './CartContext';
-import ProductList from './Products/ProductList';
 import { WishlistProvider } from './WishlistContext';
+import PasswordReset from './components/PasswordReset';
+import PasswordChange from './components/PasswordChange';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -73,12 +73,15 @@ function App() {
                   <Route path="/login" element={<Login />} />
                 </>
               )}
-              <Route path="/product_detail/:title" element={<ProductDetail/>} />
+              <Route path="/product_detail/:title" element={<Product_Detail/>} />
               <Route path="/about" element={<About_Us />} />
               <Route path="/contact" element={<ContactUs />} />
-              <Route path="/add_to_cart/:id" element={<Cart />} />
-              <Route path="/product/:id" element={<AddToCart />} />
-              <Route path="/product/:id" element={<Checkout />} />
+              <Route path="/add_to_cart/:title" element={<Cart />} />
+              <Route path="/product/:title" element={<AddToCart />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/product/:title" element={<Checkout />} />
+              <Route path="/reset" element={<PasswordReset />} />
+              <Route path="/passwordchange" element={<PasswordChange />} />
             </Routes>
             <Footer />
           </Router>

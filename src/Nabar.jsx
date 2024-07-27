@@ -3,39 +3,34 @@ import { Link } from 'react-router-dom';
 import { Button, Modal, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
 import { useCart } from './CartContext';
+import { useWishlist } from './WishlistContext'; // Import useWishlist
 import CardProduct from './CardProduct';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+import { useNavigate } from "react-router-dom";
+import { getProductData } from './Products/Product_Detail'; // Import function to fetch product data
+import axios from 'axios';
 
-const Nabar = () => {
+const NavbarComponent = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { items, getTotalCost } = useCart();
+  const { wishlistProducts, addOneToWishlist } = useWishlist(); // Use Wishlist Context
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
-  const productsCount = items.reduce((total, item) => total + item.quantity, 0);
+  const navigate = useNavigate();
 
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:8000/api/search/?q=${query}`);
+      const response = await axios.get(`http://localhost:8000/api/search/?q=${query}`);
       const data = await response.json();
       setResults(data.products || []);
     } catch (error) {
       console.error('Error fetching search results:', error);
-    }
-  };
-
-  const checkout = async () => {
-    try {
-      // Replace with actual checkout implementation
-      alert('Checkout functionality not implemented yet');
-    } catch (error) {
-      console.error('Error during checkout:', error);
     }
   };
 
@@ -86,7 +81,7 @@ const Nabar = () => {
             <Nav className="ms-auto">
               {isAuthenticated ? (
                 <>
-                  <NavDropdown title={user?.username} id="navbarScrollingDropdown">
+                  <NavDropdown title={user?.username || 'Profile'} id="navbarScrollingDropdown">
                     <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/orders">Orders</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/passwordchange">Change Password</NavDropdown.Item>
@@ -94,12 +89,12 @@ const Nabar = () => {
                   </NavDropdown>
                   <Nav.Item className="mx-2">
                     <Button onClick={handleShow} className="nav-link text-white">
-                      Cart ({productsCount} Items)
+                      Cart ({items.reduce((total, item) => total + item.quantity, 0)} Items)
                     </Button>
                   </Nav.Item>
                   <Nav.Item className="mx-2">
                     <Nav.Link as={Link} to="/show_wishlist" className="text-white">
-                      Wishlist
+                      Wishlist ({wishlistProducts.length} Items)
                     </Nav.Link>
                   </Nav.Item>
                 </>
@@ -119,14 +114,17 @@ const Nabar = () => {
           <Modal.Title>Shopping Cart</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {productsCount > 0 ? (
+          {items.length > 0 ? (
             <>
               <p>Items in your cart:</p>
-              {items.map((currentProduct, idx) => (
-                <CardProduct key={idx} id={currentProduct.id} quantity={currentProduct.quantity} />
-              ))}
+              {items.map((currentProduct, idx) => {
+                const product = getProductData(currentProduct.id); // Fetch product data
+                return (
+                  <CardProduct key={idx} product={product} quantity={currentProduct.quantity} />
+                );
+              })}
               <h1>Total: {getTotalCost().toFixed(2)}</h1>
-              <Button variant="success" onClick={checkout}>Purchase items!</Button>
+              <Button variant="success" onClick={() => navigate('/cart')}>Go to Cart</Button>
             </>
           ) : (
             <h1>There are no items in your cart</h1>
@@ -137,4 +135,4 @@ const Nabar = () => {
   );
 };
 
-export default Nabar;
+export default NavbarComponent;

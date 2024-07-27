@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { useAuth } from './AuthContext'; // Adjust the import path as needed
 
 function Register() {
@@ -10,7 +10,7 @@ function Register() {
   const [error, setError] = useState('');
 
   const { register } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate(); // Use useNavigate
 
   const submit = async (e) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ function Register() {
 
     try {
       await register(user);
-      history.push('/'); // Redirect to home page or wherever you want
+      navigate('/'); // Redirect to home page or wherever you want
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data);
