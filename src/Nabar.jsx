@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Modal, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
 import { useCart } from './CartContext';
-import { useWishlist } from './WishlistContext'; // Import useWishlist
+import { useWishlist } from './WishlistContext'; 
 import CardProduct from './CardProduct';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import { useNavigate } from "react-router-dom";
-import { getProductData } from './Products/Product_Detail'; // Import function to fetch product data
 import axios from 'axios';
+import { getProductData } from './Products/Product_Detail';
 
 const NavbarComponent = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { items, getTotalCost } = useCart();
-  const { wishlistProducts, addOneToWishlist } = useWishlist(); // Use Wishlist Context
+  const { wishlistProducts, addOneToWishlist } = useWishlist(); 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [show, setShow] = useState(false);
@@ -26,13 +25,17 @@ const NavbarComponent = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:8000/api/search/?q=${query}`);
-      const data = await response.json();
-      setResults(data.products || []);
+        const response = await axios.get(`http://localhost:8000/api/search/?q=${query}`);
+        const productsWithFullImagePaths = response.data.products.map(product => ({
+            ...product,
+            product_image: `http://localhost:8000${product.product_image}`
+        }));
+        setResults(productsWithFullImagePaths);
     } catch (error) {
-      console.error('Error fetching search results:', error);
+        console.error('Error fetching search results:', error);
     }
-  };
+};
+
 
   const productDropdownItems = [
     { path: "/category/EL", label: "Electronics" },
@@ -108,6 +111,35 @@ const NavbarComponent = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      {/* Render search results */}
+      <Container className="mt-5 pt-5">
+  {results.length > 0 && (
+    <div className="search-results mt-4">
+      {results.map((product) => (
+        <div key={product.id} className="card mb-3">
+          <div className="d-flex">
+            <img
+              src={product.product_image}
+              className="img-responsive flex-shrink-0 me-3"
+              alt={product.title}
+              style={{ width: '200px', height: 'auto' }}
+            />
+            <div className="card-body">
+              <h5 className="card-title">{product.title}</h5>
+              <p className="card-text">{product.description}</p>
+              <p className="card-text">Price: ${product.price}</p>
+              <Link to={`/product/${product.id}`} className="btn btn-primary">
+                Add to Cart
+              </Link>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</Container>
+
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
