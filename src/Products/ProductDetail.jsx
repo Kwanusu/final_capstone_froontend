@@ -96,9 +96,9 @@ const ProductDetail = () => {
           <p className="card-text">{product.prodapp}</p>
           <p className="card-text">{product.composition}</p>
           <small className="text-decoration-line-through text-muted fs-5">
-            Kshs. {product.selling_price}
+            $. {product.selling_price}
           </small>
-          <p className="card-text">Kshs. {product.discounted_price}</p>
+          <p className="card-text">$. {product.discounted_price}</p>
           <div className="d-flex justify-content-between">
             <button onClick={() => addOneToCart(product.title)} className="btn btn-primary">Add to Cart</button>
             <button onClick={handleBuyNow} className="btn btn-warning">Buy Now</button>

@@ -99,8 +99,8 @@ const Home = () => {
                 <h5 className="card-title">{product.title}</h5>
                 <h5 className="card-title">{product.id}</h5>
                 <p className="card-text">Description: {product.description}</p>
-                <p className="card-text text-decoration-line-through text-muted text-danger">Was Kshs: {product.selling_price}</p>
-                <h5 className="card-text">Now Kshs: {product.discounted_price}</h5>
+                <p className="card-text text-decoration-line-through text-muted text-danger">Was $: {product.selling_price}</p>
+                <h5 className="card-text">Now $: {product.discounted_price}</h5>
                 <div className="d-flex justify-content-between">
                   <button className="btn btn-primary" onClick={() => addOneToCart(product.title)}>Add to Cart</button> {/* Updated here */}
                   <button className="btn btn-warning mx-1" onClick={handleCheckout}>Buy Now</button>
