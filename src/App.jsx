@@ -21,6 +21,9 @@ import { CartProvider } from './CartContext';
 import { WishlistProvider } from './WishlistContext';
 import PasswordReset from './components/PasswordReset';
 import PasswordChange from './components/PasswordChange';
+import Search from './Search';
+import PasswordResetRequest from './Password/PasswordResetRequest';
+import PasswordResetConfirm from './Password/PasswordResetConfirm';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,8 +83,10 @@ function App() {
               <Route path="/product/:title" element={<AddToCart />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/product/:title" element={<Checkout />} />
-              <Route path="/reset" element={<PasswordReset />} />
+              <Route path="/reset" element={<PasswordResetRequest />} />
+              <Route path="/reset-password" element={<PasswordResetConfirm />} />
               <Route path="/passwordchange" element={<PasswordChange />} />
+              <Route path="/search" element={<Search />} />
             </Routes>
             <Footer />
           </Router>

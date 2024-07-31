@@ -60,7 +60,7 @@ function Login() {
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="card p-4" style={{ width: '400px' }}>
         <form onSubmit={submit}>
-          <h3 className="card-title text-center">Sign In</h3>
+          <h3 className="card-title text-center">Login</h3>
           <div className="form-group mt-3">
             <label>Username</label>
             <input
@@ -101,6 +101,7 @@ function Login() {
             </button>
           </div>
           <span className="mt-3 d-block text-center">Forgot Password? <Link to="/reset">Reset</Link></span>
+          <span className="mt-3 d-block text-center">New user? <Link to="/register">Register</Link></span>
         </form>
       </div>
     </div>

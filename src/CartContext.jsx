@@ -9,7 +9,8 @@ export const CartContext = createContext({
     removeOneFromCart: () => {},
     deleteFromCart: () => {},
     getTotalCost: () => {},
-    prepareCheckoutData: () => {}
+    prepareCheckoutData: () => {},
+    clearCart: () => {},  // Add clearCart to the context
 });
 
 export const useCart = () => {
@@ -118,6 +119,10 @@ export function CartProvider({ children }) {
         });
     }
 
+    function clearCart() {
+        setCartProducts([]);
+    }
+
     const contextValue = {
         items: cartProducts,
         getProductQuantity,
@@ -126,6 +131,7 @@ export function CartProvider({ children }) {
         deleteFromCart,
         getTotalCost,
         prepareCheckoutData,
+        clearCart,  // Include clearCart in the context value
         setCartProducts,
     };
 

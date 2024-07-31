@@ -5,9 +5,9 @@ import axios from 'axios';
 import { getProductData } from '../Products/Product_Detail';
 
 const Cart = ({ products }) => {
-  const { items, addOneToCart, removeOneFromCart, deleteFromCart, getTotalCost } = useCart();
+  const { items, addOneToCart, removeOneFromCart, deleteFromCart, getTotalCost, clearCart } = useCart();
   const [totalAmount, setTotalAmount] = useState(0);
-  
+
   useEffect(() => {
     setTotalAmount(getTotalCost());
   }, [items, getTotalCost]);
@@ -28,15 +28,15 @@ const Cart = ({ products }) => {
     try {
       const response = await axios.post('http://localhost:8000/api/checkout/create-session/', {
         items: items.map(item => {
-          const items = getProductData(item.title, products);
+          const product = getProductData(item.title, products);
           return {
             price_data: {
               currency: 'usd',
               product_data: {
-                name: item?.title || 'Unknown',
-                description: item?.description || 'No description',
+                name: product?.title || 'Unknown',
+                description: product?.description || 'No description',
               },
-              unit_amount: (item?.discounted_price || 0) * 100,
+              unit_amount: (product?.discounted_price || 0) * 100,
             },
             quantity: item.quantity,
           };
@@ -44,12 +44,13 @@ const Cart = ({ products }) => {
       });
       // Redirect to Stripe Checkout
       window.location.href = response.data.url;
+      // Clear the cart after successful checkout
+      clearCart();
     } catch (error) {
       console.error('Error during checkout:', error);
     }
   };
-  
-  
+
   return (
     <Container className="my-5">
       <h1 className="text-center mb-5">Shopping Cart</h1>
@@ -59,7 +60,6 @@ const Cart = ({ products }) => {
             <>
               {items.map(item => {
                 const product = getProductData(item.title, products);
-                console.log(item); // Debugging line
                 return (
                   <div className="row" key={item.title}>
                     <div className="col-sm-3 text-center align-self-center">
@@ -86,16 +86,13 @@ const Cart = ({ products }) => {
                         <button className="btn btn-sm btn-secondary bg-danger mr-3" onClick={() => handleDelete(item.title)}>
                           Remove Item
                         </button>
-                        {/* <p className="mb-0">
-                          <strong>Kshs. {(item?.discounted_price || 0) * item.quantity}</strong>
-                        </p> */}
                       </div>
                     </div>
                   </div>
                 );
               })}
               <div className="d-flex justify-content-between mt-4">
-                <h3>Total: Kshs. {totalAmount.toFixed(2)}</h3>
+                <h3>Total: $. {totalAmount.toFixed(2)}</h3>
                 <Button variant="success" onClick={handleCheckout}>Purchase items!</Button>
               </div>
             </>
