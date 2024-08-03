@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Modal, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
@@ -13,9 +13,10 @@ import { getProductData } from './Products/Product_Detail';
 const NavbarComponent = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { items, getTotalCost } = useCart();
-  const { wishlistProducts, addOneToWishlist } = useWishlist(); 
+  const { wishlistProducts } = useWishlist(); 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [categoryProducts, setCategoryProducts] = useState([]);
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -25,30 +26,43 @@ const NavbarComponent = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.get(`http://localhost:8000/api/search/?q=${query}`);
-        const productsWithFullImagePaths = response.data.products.map(product => ({
-            ...product,
-            product_image: `http://localhost:8000${product.product_image}`
-        }));
-        setResults(productsWithFullImagePaths);
+      const response = await axios.get(`http://localhost:8000/api/search/?q=${query}`);
+      const productsWithFullImagePaths = response.data.products.map(product => ({
+        ...product,
+        product_image: `http://localhost:8000${product.product_image}`
+      }));
+      setResults(productsWithFullImagePaths);
     } catch (error) {
-        console.error('Error fetching search results:', error);
+      console.error('Error fetching search results:', error);
     }
-};
+  };
 
+  const handleCategoryClick = async (category) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/category/${category}/`);
+      const productsWithFullImagePaths = response.data.products.map(product => ({
+        ...product,
+        product_image: `http://localhost:8000${product.product_image}`
+      }));
+      setCategoryProducts(productsWithFullImagePaths);
+      setResults([]); // Clear search results
+    } catch (error) {
+      console.error('Error fetching category products:', error);
+    }
+  };
 
   const productDropdownItems = [
-    { path: "/category/EL", label: "Electronics" },
-    { path: "/category/KI", label: "Kitchen" },
-    { path: "/category/MP", label: "Mobile Phones" },
-    { path: "/category/SS", label: "Sound Systems" },
-    { path: "/category/CS", label: "Cameras" },
-    { path: "/category/BG", label: "Bags" },
-    { path: "/category/CL", label: "Clothes" },
-    { path: "/category/BB", label: "Beds and Bedding" },
-    { path: "/category/CP", label: "Computers" },
-    { path: "/category/EE", label: "Electrical" },
-    { path: "/category/SD", label: "Smart/Digital TVs" },
+    { path: "EL", label: "Electronics" },
+    { path: "KI", label: "Kitchen" },
+    { path: "MP", label: "Mobile Phones" },
+    { path: "SS", label: "Sound Systems" },
+    { path: "CS", label: "Cameras" },
+    { path: "BG", label: "Bags" },
+    { path: "CL", label: "Clothes" },
+    { path: "BB", label: "Beds and Bedding" },
+    { path: "CP", label: "Computers" },
+    { path: "EE", label: "Electrical" },
+    { path: "SD", label: "Smart/Digital TVs" },
   ];
 
   return (
@@ -64,7 +78,10 @@ const NavbarComponent = () => {
               <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
               <NavDropdown title="Products" id="navbarScrollingDropdown">
                 {productDropdownItems.map((item, idx) => (
-                  <NavDropdown.Item key={idx} as={Link} to={item.path}>
+                  <NavDropdown.Item 
+                    key={idx} 
+                    onClick={() => handleCategoryClick(item.path)}
+                  >
                     {item.label}
                   </NavDropdown.Item>
                 ))}
@@ -112,34 +129,33 @@ const NavbarComponent = () => {
         </Container>
       </Navbar>
 
-      {/* Render search results */}
+      {/* Render category products */}
       <Container className="mt-5 pt-5">
-  {results.length > 0 && (
-    <div className="search-results mt-4">
-      {results.map((product) => (
-        <div key={product.id} className="card mb-3">
-          <div className="d-flex">
-            <img
-              src={product.product_image}
-              className="img-responsive flex-shrink-0 me-3"
-              alt={product.title}
-              style={{ width: '200px', height: 'auto' }}
-            />
-            <div className="card-body">
-              <h5 className="card-title">{product.title}</h5>
-              <p className="card-text">{product.description}</p>
-              <p className="card-text">Price: ${product.price}</p>
-              <Link to={`/product/${product.id}`} className="btn btn-primary">
-                Add to Cart
-              </Link>
-            </div>
+        {categoryProducts.length > 0 && (
+          <div className="category-products mt-4">
+            {categoryProducts.map((product) => (
+              <div key={product.id} className="card mb-3">
+                <div className="d-flex">
+                  <img
+                    src={product.product_image}
+                    className="img-responsive flex-shrink-0 me-3"
+                    alt={product.title}
+                    style={{ width: '200px', height: 'auto' }}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title">{product.title}</h5>
+                    <p className="card-text">{product.description}</p>
+                    <p className="card-text">Price: ${product.price}</p>
+                    <Link to={`/product/${product.id}`} className="btn btn-primary">
+                      Add to Cart
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</Container>
-
+        )}
+      </Container>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>

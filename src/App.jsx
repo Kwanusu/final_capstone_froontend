@@ -19,11 +19,13 @@ import Checkout from './Checkout';
 import { AuthProvider } from './AuthContext';
 import { CartProvider } from './CartContext';
 import { WishlistProvider } from './WishlistContext';
-import PasswordReset from './components/PasswordReset';
 import PasswordChange from './components/PasswordChange';
 import Search from './Search';
 import PasswordResetRequest from './Password/PasswordResetRequest';
 import PasswordResetConfirm from './Password/PasswordResetConfirm';
+import Orders from './Profile/Orders';
+import ProfileUpdate from './components/ProfileUpdate';
+import AddressUpdate from './components/AddressUpdate';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -87,6 +89,9 @@ function App() {
               <Route path="/reset-password" element={<PasswordResetConfirm />} />
               <Route path="/passwordchange" element={<PasswordChange />} />
               <Route path="/search" element={<Search />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<ProfileUpdate />} />
+              <Route path="/updateAddress" element={<AddressUpdate />} />
             </Routes>
             <Footer />
           </Router>
